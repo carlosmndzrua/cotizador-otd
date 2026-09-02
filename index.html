@@ -175,11 +175,16 @@
   /* ---------- Impresión ---------- */
   @page{size:letter;margin:0.45in}
   @media print{
-    body *{visibility:hidden}
-    #doc,#doc *{visibility:visible}
+    html,body{background:#fff!important;margin:0!important;padding:0!important}
+    /* display:none, no visibility:hidden — si no, el panel sigue ocupando lugar y empuja la hoja */
+    .topbar,.panel,.docnote,#toast{display:none!important}
+    .layout{display:block!important;max-width:none!important;padding:0!important;margin:0!important;gap:0!important}
+    .docarea{width:100%!important;min-width:0!important}
+    #docwrap{position:static!important;width:100%!important;height:auto!important}
     #doc{
-      position:absolute;left:0;top:0;transform:none!important;
-      width:100%!important;min-height:9.4in;box-shadow:none;padding:0;
+      position:static!important;transform:none!important;transform-origin:top left!important;
+      width:100%!important;min-height:0!important;
+      box-shadow:none!important;padding:0!important;
     }
   }
 </style>
@@ -239,11 +244,13 @@
         <label class="f"><span>Stock#</span><input data-bind="veh.stock"></label>
         <label class="f"><span>VIN (opcional)</span><input data-bind="veh.vin" style="text-transform:uppercase"></label>
       </div>
-      <div class="g3">
-        <label class="f"><span>Cantidad</span><input type="number" min="1" step="1" inputmode="numeric" data-bind="veh.qty" data-num="1"></label>
-        <label class="f"><span>Market Value ($)</span><input type="number" step="any" inputmode="decimal" data-bind="veh.market" data-num="1" data-zero="blank" placeholder="0.00"></label>
+      <div class="g4">
+        <label class="f"><span>Cant.</span><input type="number" min="1" step="1" inputmode="numeric" data-bind="veh.qty" data-num="1"></label>
+        <label class="f"><span>Market Value/MSRP ($)</span><input type="number" step="any" inputmode="decimal" data-bind="veh.market" data-num="1" data-zero="blank" placeholder="0.00"></label>
+        <label class="f"><span>Precio de venta ($)</span><input type="number" step="any" inputmode="decimal" data-bind="veh.sale" data-num="1" data-zero="blank" placeholder="0.00"></label>
         <label class="f"><span>Descuento ($)</span><input type="number" step="any" inputmode="decimal" data-bind="veh.discount" data-num="1" data-zero="blank" placeholder="0.00"></label>
       </div>
+      <p class="hint" style="margin:-2px 0 10px">Pon el MSRP y luego el precio de venta: el descuento se calcula solo. También puedes escribir el descuento y te saca el precio de venta.</p>
       <p class="hint" style="margin:0">Con cantidad mayor a 1, los cargos e impuesto se calculan por unidad y el documento agrega el total de todas las unidades.</p>
     </div>
 
@@ -334,7 +341,7 @@ const L={
     strip:'Incentive programs and rebates are estimates, subject to change and verification.',
     taxProfile:'Tax Profile:',
     cash:'CASH PURCHASE',
-    marketValue:'Market Value',
+    marketValue:'Market Value/MSRP',
     discount:'Discount Savings',
     vehAfter:'Vehicle (after Savings)',
     vehPrice:'Vehicle Price',
@@ -356,7 +363,7 @@ const L={
     strip:'Los programas de incentivos y reembolsos son estimados, sujetos a cambio y verificación.',
     taxProfile:'Perfil de impuesto:',
     cash:'COMPRA DE CONTADO',
-    marketValue:'Valor de Mercado',
+    marketValue:'Valor de Mercado/MSRP',
     discount:'Ahorro por Descuento',
     vehAfter:'Vehículo (con Descuento)',
     vehPrice:'Precio del Vehículo',
@@ -388,7 +395,7 @@ function defaultState(){
     dealer:{name:'Toyota of Las Vegas',phone:'(702) 457-2000'},
     client:{company:'',contact:''},
     quote:{date:todayISO(),time:nowHM()},
-    veh:{yr:'2026',make:'Toyota',model:'',trim:'',stock:'',vin:'',qty:1,market:0,discount:0},
+    veh:{yr:'2026',make:'Toyota',model:'',trim:'',stock:'',vin:'',qty:1,market:0,sale:0,discount:0,lock:'sale'},
     trade:{allowance:0,payoff:0,taxCredit:true},
     taxRate:8.375,
     taxProfile:'Clark County',
@@ -400,6 +407,32 @@ let state=defaultState();
 /* ---------- enlaces de campos fijos ---------- */
 function getPath(o,p){return p.split('.').reduce((a,k)=>a?a[k]:undefined,o);}
 function setPath(o,p,v){const ks=p.split('.');let x=o;for(let i=0;i<ks.length-1;i++)x=x[ks[i]];x[ks[ks.length-1]]=v;}
+/* MSRP, precio de venta y descuento siempre cuadrados entre sí.
+   'lock' recuerda cuál de los dos escribió al final, para saber qué respetar
+   cuando después corrige el MSRP. */
+function syncPrice(src){
+  const v=state.veh, m=Math.max(0,v.market||0);
+  const hasSale=(v.sale||0)>0;
+  if(src==='veh.sale'){
+    v.lock='sale';
+    /* si borra el precio de venta, se va también el descuento */
+    v.discount=(hasSale&&m>0)?Math.max(0,m-v.sale):0;
+  }else if(src==='veh.discount'){
+    v.lock='disc';
+    v.sale=Math.max(0,m-(v.discount||0));
+  }else{                                   /* cambió el MSRP */
+    /* solo se respeta el precio de venta si de verdad hay uno capturado */
+    if(v.lock==='sale'&&hasSale)v.discount=m>0?Math.max(0,m-v.sale):0;
+    else v.sale=Math.max(0,m-(v.discount||0));
+  }
+  /* actualizar solo los campos que NO está escribiendo, para no moverle el cursor */
+  ['veh.market','veh.sale','veh.discount'].forEach(b=>{
+    if(b===src)return;
+    const el=document.querySelector('[data-bind="'+b+'"]');
+    if(el){const val=getPath(state,b);el.value=val?val:'';}
+  });
+}
+
 function bindScalars(){
   document.querySelectorAll('[data-bind]').forEach(el=>{
     el.addEventListener('input',()=>{
@@ -408,6 +441,8 @@ function bindScalars(){
       if(el.dataset.bind==='veh.qty')v=Math.max(1,Math.round(v)||1);
       if(el.dataset.bind==='veh.vin')v=v.toUpperCase();
       setPath(state,el.dataset.bind,v);
+      if(el.dataset.bind==='veh.market'||el.dataset.bind==='veh.sale'||el.dataset.bind==='veh.discount')
+        syncPrice(el.dataset.bind);
       onChange();
     });
   });
@@ -454,7 +489,7 @@ function renderFeeRows(){
 function calc(){
   const v=state.veh;
   const qty=Math.max(1,Math.round(v.qty||1));
-  const unit=(v.market||0)-(v.discount||0);
+  const unit=(v.sale||0)>0?v.sale:Math.max(0,(v.market||0)-(v.discount||0));
   /* El intercambio solo aplica a una unidad */
   const allow=qty===1?Math.max(0,state.trade.allowance||0):0;
   const payoff=qty===1?Math.max(0,state.trade.payoff||0):0;
@@ -470,7 +505,7 @@ function calc(){
   const beforeFees=unit-allow+payoff;               /* vehículo con el trade aplicado, sin cargos ni impuesto */
   const due=beforeFees+totalFees;                  /* el payoff se suma al efectivo, no al impuesto */
   return {qty,unit,allow,payoff,netTrade,credit,tax,totalFees,beforeFees,due,
-          grand:due*qty,hasDisc:(v.discount||0)>0,hasTrade:allow>0||payoff>0};
+          grand:due*qty,hasDisc:(v.discount||0)>0&&(v.market||0)>unit,hasTrade:allow>0||payoff>0};
 }
 
 /* ---------- documento ---------- */
@@ -580,8 +615,25 @@ $('#btnDefaults').addEventListener('click',async()=>{
   toast('Predeterminados guardados');
 });
 
+/* Nada de confirm(): dentro de una app instalada o de un visor incrustado el
+   navegador lo bloquea y el botón no hacía nada. Ahora confirma con doble toque. */
+let newArmed=false,newT;
+function disarmNew(){
+  const b=$('#btnNew');
+  newArmed=false;clearTimeout(newT);
+  b.textContent='Nueva cotización';b.classList.remove('primary');
+}
 $('#btnNew').addEventListener('click',async()=>{
-  if(!confirm('¿Empezar una cotización nueva? Se limpian cliente y vehículo.'))return;
+  const b=$('#btnNew');
+  if(!newArmed){
+    newArmed=true;
+    b.textContent='¿Seguro? Toca otra vez';
+    b.classList.add('primary');
+    clearTimeout(newT);
+    newT=setTimeout(disarmNew,4000);
+    return;
+  }
+  disarmNew();
   const fresh=defaultState();
   applyDefaults(fresh,await store.get('otd4_defaults'));
   state=fresh;
@@ -602,26 +654,54 @@ $('#btnPdf').addEventListener('click',()=>{
     alert('No se pudo cargar el generador de PDF (revisa tu conexión). Mientras tanto usa «Imprimir» y elige «Guardar como PDF».');
     return;
   }
-  const src=$('#doc');
-  const clone=src.cloneNode(true);
-  clone.style.position='static';clone.style.transform='none';
-  clone.style.width='816px';clone.style.boxShadow='none';
+  const btn=$('#btnPdf');
+  if(btn.disabled)return;
+  btn.disabled=true;
+
+  const clone=$('#doc').cloneNode(true);
+  clone.style.position='static';
+  clone.style.transform='none';
+  clone.style.width='816px';
+  clone.style.boxShadow='none';
+  clone.style.margin='0';
+
+  /* El contenedor va pegado a 0,0 del documento: si se manda fuera de pantalla
+     (left:-10000px) html2canvas captura corrido y recorta la hoja. */
   const holder=document.createElement('div');
-  holder.style.cssText='position:fixed;left:-10000px;top:0;width:816px;background:#fff;';
-  holder.appendChild(clone);document.body.appendChild(holder);
+  holder.style.cssText='position:absolute;left:0;top:0;width:816px;background:#fff;z-index:2147483647;';
+  holder.appendChild(clone);
+  document.body.appendChild(holder);
+
+  const sx=window.pageXOffset,sy=window.pageYOffset;
+  window.scrollTo(0,0);
+
   const tag=(state.client.company||state.veh.stock||'Cliente').replace(/[^A-Za-z0-9ÁÉÍÓÚÑáéíóúñ-]+/g,'_').replace(/^_+|_+$/g,'')||'Cliente';
   const fname='OTD_'+tag+'_'+(state.quote.date||todayISO())+'.pdf';
   toast('Generando PDF…');
-  html2pdf().set({
+
+  const done=()=>{holder.remove();window.scrollTo(sx,sy);btn.disabled=false;};
+
+  /* Esperar a que la imagen del logo esté lista antes de capturar */
+  const img=clone.querySelector('img');
+  const ready=(img&&!img.complete)
+    ? new Promise(r=>{img.onload=r;img.onerror=r;})
+    : Promise.resolve();
+
+  ready.then(()=>html2pdf().set({
     margin:[0.32,0.1,0.42,0.1],
     filename:fname,
     image:{type:'jpeg',quality:0.96},
-    html2canvas:{scale:2,useCORS:true,backgroundColor:'#ffffff',width:816,windowWidth:816},
+    html2canvas:{
+      scale:2,useCORS:true,backgroundColor:'#ffffff',
+      width:816,height:clone.offsetHeight,
+      windowWidth:816,
+      x:0,y:0,scrollX:0,scrollY:0
+    },
     jsPDF:{unit:'in',format:'letter',orientation:'portrait'},
     pagebreak:{mode:['css','legacy'],avoid:['tr','.avoid']}
-  }).from(clone).save()
-    .then(()=>{holder.remove();toast('PDF descargado');})
-    .catch(()=>{holder.remove();toast('No se pudo generar el PDF; usa «Imprimir»');});
+  }).from(clone).save())
+    .then(()=>{done();toast('PDF descargado');})
+    .catch(()=>{done();toast('No se pudo generar el PDF; usa «Imprimir»');});
 });
 
 /* ---------- inicio ---------- */
@@ -637,6 +717,7 @@ $('#btnPdf').addEventListener('click',()=>{
     state.quote=Object.assign(defaultState().quote,dr.quote);
     state.veh=Object.assign(defaultState().veh,dr.veh);
     state.trade=Object.assign(defaultState().trade,dr.trade);
+    if(!state.veh.sale)state.veh.sale=Math.max(0,(state.veh.market||0)-(state.veh.discount||0));
   }
   bindScalars();
   refreshScalars();

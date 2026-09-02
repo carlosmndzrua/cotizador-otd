@@ -1,6 +1,6 @@
 /* Cotizador OTD — service worker
    Sube la versión (CACHE) cada vez que cambies index.html para forzar la actualización. */
-const CACHE = 'cotizador-otd-v1';
+const CACHE = 'cotizador-otd-v4';
 
 const ASSETS = [
   './',

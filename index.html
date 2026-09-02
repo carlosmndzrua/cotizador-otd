@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>Cotizador OTD — Mendoza Cars</title>
 <link rel="manifest" href="./manifest.webmanifest">
-<meta name="theme-color" content="#EB0A1E">
+<meta name="theme-color" content="#1B3A5F">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -16,6 +16,9 @@
 <style>
   :root{
     --red:#EB0A1E;
+    --navy:#1B3A5F;
+    --navy2:#2E5680;
+    --green:#14603C;
     --ink:#17181A;
     --muted:#6E6B66;
     --desk:#ECEAE6;
@@ -102,64 +105,66 @@
   #docwrap{position:relative;width:100%}
   #doc{
     position:absolute;top:0;left:0;
-    width:816px;min-height:992px;
+    width:816px;min-height:1010px;
     display:flex;flex-direction:column;
     background:#fff;
     box-shadow:0 2px 14px rgba(23,24,26,.13);
-    padding:26px 46px 30px;
+    padding:30px 40px 26px;
     transform-origin:top left;
     font-family:Arial,Helvetica,sans-serif;
     font-size:13.5px;line-height:1.35;color:#000;
     font-variant-numeric:tabular-nums;
   }
 
-  /* --- réplica del formato del dealer --- */
-  .dhdr{display:flex;justify-content:space-between;align-items:flex-start;gap:24px}
-  .dhdr img{height:58px;width:auto}
-  .dmeta{text-align:right;font-size:13px;font-weight:700;line-height:1.45;white-space:nowrap}
-  .dstrip{
-    border-top:1.5px solid #000;border-bottom:1.5px solid #000;
-    margin-top:12px;padding:4px 2px;
-    display:flex;justify-content:space-between;gap:18px;flex-wrap:wrap;
-    font-size:12px;font-weight:700;
-  }
-  table.cash{border-collapse:collapse;width:410px;margin-top:22px}
-  table.cash td{padding:4px 10px;font-size:13.5px}
-  table.cash td.lbl{text-align:right;font-weight:700;width:62%}
-  table.cash td.amt{text-align:right;font-weight:700}
-  table.cash tr.chead td{
-    background:#111;color:#fff;text-align:center;
-    font-weight:800;font-size:14.5px;letter-spacing:.03em;padding:5px;
-  }
-  table.cash tr.zebra td{background:#E7E7E7}
-  .duebox{
-    width:410px;margin-top:9px;border:3px solid #000;
-    display:flex;justify-content:space-between;align-items:center;
-    padding:6px 10px;font-size:15px;font-weight:800;
-  }
-  .unitsbox{
-    width:410px;margin-top:7px;border:1.5px solid #000;
-    display:flex;justify-content:space-between;align-items:center;
-    padding:4px 10px;font-size:13px;font-weight:700;
-  }
-  .detbox{
-    margin-top:26px;border:1.5px solid #000;
-    display:grid;grid-template-columns:1fr 1fr;
-    padding:10px 14px 12px;column-gap:0;
-  }
-  .dcol{padding-right:22px}
-  .dcol+.dcol{border-left:1.5px solid #000;padding-left:22px;padding-right:0}
-  .dcol h4{margin:0 0 6px;font-size:13px;font-weight:800}
-  .dl{display:flex;align-items:baseline;font-size:13px;padding:1.5px 0}
-  .dl .lbl{white-space:nowrap;font-weight:700}
-  .dl .dots{flex:1;border-bottom:2px dotted #333;margin:0 6px 3px;min-width:14px}
-  .dl .amt{white-space:nowrap;font-weight:700;min-width:78px;text-align:right}
-  .dl.sub{border-top:1.5px solid #000;margin-top:6px;padding-top:4px;font-size:12.5px}
-  .footwrap{margin-top:auto;padding-top:26px}
-  .footstrip{
-    border:1.5px solid #000;padding:5px 10px;
-    text-align:center;font-size:12px;font-weight:700;line-height:1.5;
-  }
+  /* --- hoja OTD (azul marino) --- */
+  .frame{border:2px solid var(--navy);display:flex;flex-direction:column;flex:1}
+  .hd{display:flex;justify-content:space-between;align-items:flex-start;gap:20px;
+      padding:13px 16px;border-bottom:2px solid var(--navy)}
+  .hd img{height:44px;display:block}
+  .hd .addr{margin-top:6px;font-size:10px;color:#3F4A57;line-height:1.5;letter-spacing:.02em}
+  .hd .meta{text-align:right;font-size:12px;font-weight:700;line-height:1.45;white-space:nowrap}
+  .tstrip{display:flex;justify-content:space-between;gap:14px;padding:4px 16px;
+          border-bottom:2px solid var(--navy);font-size:11px;font-weight:700;
+          background:#EEF2F6;color:var(--navy)}
+  .cols{display:grid;grid-template-columns:1fr 1fr}
+  .col{padding:12px 16px}
+  .col+.col{border-left:2px solid var(--navy)}
+  .col h4{margin:0 0 8px;font-size:11.5px;font-weight:800;letter-spacing:.05em;
+          border-bottom:1px solid var(--navy);padding-bottom:4px;color:var(--navy)}
+  .ln{display:flex;align-items:baseline;font-size:12.5px;padding:2.5px 0;font-weight:700}
+  .ln .dots{flex:1;border-bottom:2px dotted #7C8794;margin:0 6px 3px;min-width:12px}
+  .ln .amt{min-width:74px;text-align:right;white-space:nowrap}
+  .ln.tot{border-top:1.5px solid var(--navy);margin-top:5px;padding-top:5px}
+  .duewrap{border-top:2px solid var(--navy);border-bottom:2px solid var(--navy);
+           display:flex;align-items:stretch}
+  .duelbl{flex:1;padding:12px 16px;font-size:14px;font-weight:800;
+          display:flex;align-items:center;letter-spacing:.04em;color:var(--navy)}
+  .dueamt{background:var(--navy);color:#fff;padding:12px 20px;font-size:25px;font-weight:800;
+          display:flex;align-items:center;min-width:230px;justify-content:flex-end}
+  .units{border-bottom:2px solid var(--navy);display:flex;justify-content:space-between;
+         padding:5px 16px;font-size:12px;font-weight:700;background:#F2F5F8;color:var(--navy)}
+
+  /* --- disclosure al pie --- */
+  .disc{margin-top:auto;border-top:1px solid #C3CDD7;padding:9px 16px 8px}
+  .dgrid{display:grid;grid-template-columns:1fr 1fr;gap:0}
+  .dcol{padding-right:14px}
+  .dcol+.dcol{border-left:1px solid #DDE3E9;padding-left:14px}
+  .dh{font-size:9px;letter-spacing:.08em;font-weight:800;color:var(--navy);margin-bottom:4px}
+  .dr{display:flex;justify-content:space-between;align-items:baseline;font-size:10px;padding:1.4px 0}
+  .dr .k{color:#39434F}
+  .dr .v{font-weight:700;white-space:nowrap;padding-left:8px}
+  .tire{margin-top:6px;font-size:9.5px;line-height:1.45;color:var(--green);
+        border-left:2px solid var(--green);padding-left:6px}
+  .tire b{font-weight:800}
+  .fine{margin-top:7px;font-size:8.5px;color:#67717D;line-height:1.45}
+  .optblock{border-top:1px solid #C3CDD7;padding:8px 16px 9px}
+  .optgrid{display:grid;grid-template-columns:repeat(5,1fr);gap:11px}
+  .opcard{border-top:2px solid var(--navy2);padding-top:5px}
+  .opcard .nm{font-size:10.5px;font-weight:800;margin-bottom:3px}
+  .opcard p{margin:0;font-size:9px;line-height:1.45;color:#3B4551}
+  .ftr{border-top:2px solid var(--navy);padding:7px 16px;text-align:center;
+       font-size:10.5px;font-weight:700;line-height:1.5;color:#2B3340}
+
   .avoid{page-break-inside:avoid}
 
   /* ---------- Toast ---------- */
@@ -176,6 +181,12 @@
   @page{size:letter;margin:0.45in}
   @media print{
     html,body{background:#fff!important;margin:0!important;padding:0!important}
+    /* forzar que se impriman los fondos: bloque azul del total, franja gris y el verde */
+    html,body,#doc,#doc *{
+      -webkit-print-color-adjust:exact!important;
+      print-color-adjust:exact!important;
+      color-adjust:exact!important;
+    }
     /* display:none, no visibility:hidden — si no, el panel sigue ocupando lugar y empuja la hoja */
     .topbar,.panel,.docnote,#toast{display:none!important}
     .layout{display:block!important;max-width:none!important;padding:0!important;margin:0!important;gap:0!important}
@@ -183,9 +194,10 @@
     #docwrap{position:static!important;width:100%!important;height:auto!important}
     #doc{
       position:static!important;transform:none!important;transform-origin:top left!important;
-      width:100%!important;min-height:0!important;
+      width:100%!important;min-height:9.9in!important;
       box-shadow:none!important;padding:0!important;
     }
+    .frame{page-break-inside:avoid}
   }
 </style>
 </head>
@@ -222,12 +234,7 @@
       <div class="g3">
         <label class="f"><span>Fecha</span><input type="date" data-bind="quote.date"></label>
         <label class="f"><span>Hora</span><input type="time" data-bind="quote.time"></label>
-        <label class="f"><span>Idioma</span>
-          <select id="langSel">
-            <option value="en">Inglés</option>
-            <option value="es">Español</option>
-          </select>
-        </label>
+        <label class="f"><span>Sitio web (pie del logo)</span><input data-bind="dealer.site"></label>
       </div>
     </div>
 
@@ -244,6 +251,7 @@
         <label class="f"><span>Stock#</span><input data-bind="veh.stock"></label>
         <label class="f"><span>VIN (opcional)</span><input data-bind="veh.vin" style="text-transform:uppercase"></label>
       </div>
+      <label class="chk" style="margin:0 0 10px"><input type="checkbox" id="hybridChk"> Vehículo híbrido (agrega las garantías de sistema y batería híbrida)</label>
       <div class="g4">
         <label class="f"><span>Cant.</span><input type="number" min="1" step="1" inputmode="numeric" data-bind="veh.qty" data-num="1"></label>
         <label class="f"><span>Market Value/MSRP ($)</span><input type="number" step="any" inputmode="decimal" data-bind="veh.market" data-num="1" data-zero="blank" placeholder="0.00"></label>
@@ -337,50 +345,25 @@ const store={
 
 /* ---------- textos del documento ---------- */
 const L={
-  en:{
-    strip:'Incentive programs and rebates are estimates, subject to change and verification.',
-    taxProfile:'Tax Profile:',
-    cash:'CASH PURCHASE',
-    marketValue:'Market Value/MSRP',
-    discount:'Discount Savings',
-    vehAfter:'Vehicle (after Savings)',
-    vehPrice:'Vehicle Price',
-    totalFees:'Total Fees',
-    due:'Due On Delivery',
-    unitsTotal:n=>'Total for '+n+' Units',
-    pdetails:'PURCHASE DETAILS',
-    netPrice:'Net Vehicle Price',
-    tradeIn:'Trade-In Allowance',
-    payoff:'Less Trade Payoff',
-    subBefore:'TOTAL BEFORE TAXES AND FEES',
-    tfees:'TAXES AND FEES',
-    salesTax:'Sales/Use Tax',
-    total:'TOTAL',
-    salesperson:'Salesperson:',
-    footer:d=>'Interest Rates, Pricing, Rebates and Terms are estimates, subject to change and apply only on '+d+'.'
-  },
-  es:{
-    strip:'Los programas de incentivos y reembolsos son estimados, sujetos a cambio y verificación.',
-    taxProfile:'Perfil de impuesto:',
-    cash:'COMPRA DE CONTADO',
-    marketValue:'Valor de Mercado/MSRP',
-    discount:'Ahorro por Descuento',
-    vehAfter:'Vehículo (con Descuento)',
-    vehPrice:'Precio del Vehículo',
-    totalFees:'Total de Cargos',
-    due:'Total a la Entrega',
-    unitsTotal:n=>'Total por '+n+' Unidades',
-    pdetails:'DETALLES DE COMPRA',
-    netPrice:'Precio Neto del Vehículo',
-    tradeIn:'Valor del Intercambio',
-    payoff:'Menos Saldo del Intercambio',
-    subBefore:'TOTAL ANTES DE IMPUESTOS Y CARGOS',
-    tfees:'IMPUESTOS Y CARGOS',
-    salesTax:'Impuesto sobre la Venta',
-    total:'TOTAL',
-    salesperson:'Asesor:',
-    footer:d=>'Tasas de interés, precios, reembolsos y términos son estimados, sujetos a cambio y aplican únicamente el '+d+'.'
-  }
+  strip:'Incentive programs and rebates are estimates, subject to change and verification.',
+  taxProfile:'Tax Profile:',
+  marketValue:'Market Value / MSRP',
+  discount:'Discount Savings',
+  vehAfter:'Vehicle (after Savings)',
+  vehPrice:'Vehicle Price',
+  totalFees:'Total Fees',
+  due:'DUE ON DELIVERY',
+  unitsTotal:n=>'Total for '+n+' Units',
+  pdetails:'PURCHASE DETAILS',
+  netPrice:'Net Vehicle Price',
+  tradeIn:'Trade-In Allowance',
+  payoff:'Less Trade Payoff',
+  subBefore:'TOTAL BEFORE TAXES AND FEES',
+  tfees:'TAXES AND FEES',
+  salesTax:'Sales/Use Tax',
+  total:'TOTAL',
+  salesperson:'Salesperson:',
+  footer:d=>'Interest Rates, Pricing, Rebates and Terms are estimates, subject to change and apply only on '+d+'.'
 };
 
 /* ---------- estado ---------- */
@@ -390,12 +373,11 @@ function defaultFees(){return [
 ];}
 function defaultState(){
   return {
-    lang:'en',
     seller:{name:'Carlos Mendoza'},
-    dealer:{name:'Toyota of Las Vegas',phone:'(702) 457-2000'},
+    dealer:{name:'Toyota of Las Vegas',phone:'(702) 457-2000',addr:'3255 E Sahara Ave · Las Vegas, NV 89104',site:'dwtoyotalasvegas.com'},
     client:{company:'',contact:''},
     quote:{date:todayISO(),time:nowHM()},
-    veh:{yr:'2026',make:'Toyota',model:'',trim:'',stock:'',vin:'',qty:1,market:0,sale:0,discount:0,lock:'sale'},
+    veh:{yr:'2026',make:'Toyota',model:'',trim:'',stock:'',vin:'',qty:1,market:0,sale:0,discount:0,lock:'sale',hybrid:false},
     trade:{allowance:0,payoff:0,taxCredit:true},
     taxRate:8.375,
     taxProfile:'Clark County',
@@ -453,7 +435,7 @@ function refreshScalars(){
     if(el.dataset.num){ el.value=(el.dataset.zero==='blank'&&!v)?'':(v??''); }
     else el.value=v==null?'':v;
   });
-  $('#langSel').value=state.lang;
+  $('#hybridChk').checked=!!state.veh.hybrid;
   $('#taxCreditChk').checked=!!state.trade.taxCredit;
 }
 
@@ -509,13 +491,12 @@ function calc(){
 }
 
 /* ---------- documento ---------- */
-function dl(lbl,amt,cls){return '<div class="dl'+(cls?' '+cls:'')+'"><span class="lbl">'+lbl+'</span><span class="dots"></span><span class="amt">'+amt+'</span></div>';}
+function dl(lbl,amt,cls){return '<div class="ln'+(cls?' '+cls:'')+'"><span>'+lbl+'</span><span class="dots"></span><span class="amt">'+amt+'</span></div>';}
 function renderDoc(){
-  const l=L[state.lang],c=calc(),v=state.veh;
+  const l=L,c=calc(),v=state.veh;
   const rateTxt=(state.taxRate||0).toLocaleString('en-US',{maximumFractionDigits:3});
   const vehLine=[v.make,v.model,v.trim,v.yr].filter(Boolean).map(esc).join(' ').toUpperCase();
   const cust=esc(state.client.company||state.client.contact||'');
-  const dt=fmtDT(state.quote.date,state.quote.time);
   const taxLabel=rateTxt+'%'+(state.taxProfile?' '+esc(state.taxProfile):'');
 
   const metaLines=[
@@ -524,25 +505,10 @@ function renderDoc(){
     v.stock?'Stock# '+esc(v.stock):'',
     v.vin?'VIN: '+esc(v.vin):'',
     l.salesperson+' '+esc(state.seller.name),
-    dt
+    fmtDT(state.quote.date,state.quote.time)
   ].filter(Boolean).join('<br>');
 
-  let cashRows='';
-  let z=false;
-  function row(lbl,amt){cashRows+='<tr'+(z?' class="zebra"':'')+'><td class="lbl">'+lbl+'</td><td class="amt">'+amt+'</td></tr>';z=!z;}
-  if(c.hasDisc){
-    row(l.marketValue,fmt2(v.market));
-    row(l.discount,'- '+fmt2(v.discount));
-    row(l.vehAfter,fmt2(c.unit));
-  }else{
-    row(l.vehPrice,fmt2(c.unit));
-  }
-  if(c.hasTrade){
-    row(l.tradeIn,'- '+fmt2(c.allow));
-    if(c.payoff>0)row(l.payoff,'+ '+fmt2(c.payoff));
-  }
-  row(l.totalFees,fmt2(c.totalFees));
-
+  /* ----- columna izquierda: detalles de la compra ----- */
   let pdet='';
   if(c.hasDisc){
     pdet+=dl(l.marketValue,fmt2(v.market));
@@ -553,30 +519,71 @@ function renderDoc(){
     pdet+=dl(l.tradeIn,'- '+fmt2(c.allow));
     if(c.payoff>0)pdet+=dl(l.payoff,'+ '+fmt2(c.payoff));
   }
-  pdet+=dl(l.subBefore,fmt2(c.beforeFees),'sub');
+  pdet+=dl(l.subBefore,fmt2(c.beforeFees),'tot');
 
+  /* ----- columna derecha: impuestos y cargos ----- */
   let tdet='';
   state.fees.forEach(f=>{tdet+=dl(esc(f.name||'—'),fmt2(f.amount||0));});
   tdet+=dl(l.salesTax,fmt2(c.tax));
-  tdet+=dl(l.total,fmt2(c.due));
+  tdet+=dl(l.totalFees,fmt2(c.totalFees),'tot');
+
+  /* ----- garantías (las de híbrido solo si aplica) ----- */
+  const wr=(k,val)=>'<div class="dr"><span class="k">'+k+'</span><span class="v">'+val+'</span></div>';
+  let warr=wr('Basic (bumper-to-bumper)','36 mo / 36,000 mi')+
+           wr('Powertrain','60 mo / 60,000 mi');
+  if(v.hybrid){
+    warr+=wr('Hybrid system components','8 yr / 100,000 mi')+
+          wr('Hybrid battery (high voltage)','10 yr / 150,000 mi');
+  }
+
+  const opts=[
+    ['GAP',"If the vehicle is totaled by theft or collision, covers the gap between the insurance payout and the loan or lease balance. Includes up to $1,000 of the deductible."],
+    ['Tire &amp; wheel','Replaces tires and wheels damaged by road hazards. Includes key or remote replacement up to $800, paintless dent and windshield repair. No claim limit.'],
+    ['Vehicle service (VSA)',"Covers wear items the factory warranty doesn't include: brakes, belts, wiper blades and more. No out-of-pocket cost at replacement. Plans up to 5 years."],
+    ['ToyotaCare Plus',"Prepaid maintenance by Toyota-trained technicians. Plans from 3 years/35,000 miles to 5 years/75,000 miles. Locks in today's service cost."],
+    ['Theft deterrent','Dealer product, not from Toyota: keyless entry, anti-theft device and engine immobilizer.']
+  ].map(o=>'<div class="opcard"><div class="nm">'+o[0]+'</div><p>'+o[1]+'</p></div>').join('');
+
+  const addrLine=[esc(state.dealer.addr),esc(state.dealer.phone)].filter(Boolean).join('<br>')+
+                 (state.dealer.site?' · '+esc(state.dealer.site).toUpperCase():'');
 
   $('#doc').innerHTML=
-    '<div class="dhdr avoid">'+
-      '<img src="'+LOGO+'" alt="'+esc(state.dealer.name)+'">'+
-      '<div class="dmeta">'+metaLines+'</div>'+
-    '</div>'+
-    '<div class="dstrip avoid"><span>'+l.strip+'</span><span>'+l.taxProfile+' '+taxLabel+'</span></div>'+
-    '<table class="cash avoid"><tr class="chead"><td colspan="2">'+l.cash+'</td></tr>'+cashRows+'</table>'+
-    '<div class="duebox avoid"><span>'+l.due+'</span><span>'+fmt2(c.due)+'</span></div>'+
-    (c.qty>1?'<div class="unitsbox avoid"><span>'+l.unitsTotal(c.qty)+' ('+c.qty+' × '+fmt2(c.due)+')</span><span>'+fmt2(c.grand)+'</span></div>':'')+
-    '<div class="detbox avoid">'+
-      '<div class="dcol"><h4>'+l.pdetails+'</h4>'+pdet+'</div>'+
-      '<div class="dcol"><h4>'+l.tfees+'</h4>'+tdet+'</div>'+
-    '</div>'+
-    '<div class="footwrap avoid"><div class="footstrip">'+
-      l.footer(fmtD(state.quote.date))+'<br>'+
-      esc(state.dealer.name)+(state.dealer.phone?' -- '+esc(state.dealer.phone):'')+
-    '</div></div>';
+    '<div class="frame">'+
+      '<div class="hd avoid">'+
+        '<div><img src="'+LOGO+'" alt="'+esc(state.dealer.name)+'">'+
+          '<div class="addr">'+addrLine.toUpperCase()+'</div></div>'+
+        '<div class="meta">'+metaLines+'</div>'+
+      '</div>'+
+      '<div class="tstrip avoid"><span>'+l.strip+'</span><span>'+l.taxProfile+' '+taxLabel+'</span></div>'+
+      '<div class="cols avoid">'+
+        '<div class="col"><h4>'+l.pdetails+'</h4>'+pdet+'</div>'+
+        '<div class="col"><h4>'+l.tfees+'</h4>'+tdet+'</div>'+
+      '</div>'+
+      '<div class="duewrap avoid"><div class="duelbl">'+l.due+'</div>'+
+        '<div class="dueamt">'+fmt2(c.due)+'</div></div>'+
+      (c.qty>1?'<div class="units avoid"><span>'+l.unitsTotal(c.qty)+' ('+c.qty+' × '+fmt2(c.due)+')</span><span>'+fmt2(c.grand)+'</span></div>':'')+
+      '<div class="disc avoid">'+
+        '<div class="dgrid">'+
+          '<div class="dcol"><div class="dh">FACTORY WARRANTY — INCLUDED</div>'+warr+'</div>'+
+          '<div class="dcol"><div class="dh">TOYOTACARE — NO-COST MAINTENANCE</div>'+
+            wr('Model year 2026 and earlier','2 yr or 25,000 mi')+
+            wr('Model year 2027 (up to 2 services)','1 yr or 10,000 mi')+
+            wr('24/7 Roadside Assistance','2 yr / unlimited')+
+            wr('Roadside on Prius, BEVs and PHEVs','3 yr / unlimited')+
+            '<div class="tire"><b>1-Year Tire Warranty at no cost — exclusive to our dealership.</b> '+
+            "We repair the damaged tire and, if it can't be repaired, we replace it.</div>"+
+          '</div>'+
+        '</div>'+
+        '<div class="fine">Whichever comes first in each case. See the vehicle\'s warranty booklet for terms and exclusions.</div>'+
+      '</div>'+
+      '<div class="optblock avoid">'+
+        '<div class="dh" style="margin-bottom:6px">OPTIONAL PROTECTION — DEALER PRODUCTS · LET ME KNOW IF ANY OF THESE INTEREST YOU AND I\'LL QUOTE IT FOR YOU</div>'+
+        '<div class="optgrid">'+opts+'</div>'+
+        '<div class="fine">Protection products are optional, are not part of the factory warranty and are not included in the total above. Pricing varies by vehicle, term selected and state — quoted per unit.</div>'+
+      '</div>'+
+      '<div class="ftr avoid">'+l.footer(fmtD(state.quote.date))+'<br>'+
+        esc(state.dealer.name)+(state.dealer.phone?' -- '+esc(state.dealer.phone):'')+'</div>'+
+    '</div>';
 
   fit();
 }
@@ -602,7 +609,6 @@ function applyDefaults(target,d){
   if(typeof d.taxRate==='number')target.taxRate=d.taxRate;
   if(typeof d.taxProfile==='string')target.taxProfile=d.taxProfile;
   if(Array.isArray(d.fees)&&d.fees.length)target.fees=d.fees.map(f=>({name:f.name,amount:f.amount,taxable:!!f.taxable}));
-  if(d.lang)target.lang=d.lang;
 }
 
 /* ---------- acciones ---------- */
@@ -610,7 +616,7 @@ $('#btnDefaults').addEventListener('click',async()=>{
   await store.set('otd4_defaults',{
     seller:state.seller,dealer:state.dealer,
     taxRate:state.taxRate,taxProfile:state.taxProfile,
-    fees:state.fees,lang:state.lang
+    fees:state.fees
   });
   toast('Predeterminados guardados');
 });
@@ -643,7 +649,7 @@ $('#btnNew').addEventListener('click',async()=>{
 
 $('#addFee').addEventListener('click',()=>{state.fees.push({name:'',amount:0,taxable:false});renderFeeRows();onChange();});
 
-$('#langSel').addEventListener('change',e=>{state.lang=e.target.value;onChange();});
+$('#hybridChk').addEventListener('change',e=>{state.veh.hybrid=e.target.checked;onChange();});
 
 $('#taxCreditChk').addEventListener('change',e=>{state.trade.taxCredit=e.target.checked;onChange();});
 

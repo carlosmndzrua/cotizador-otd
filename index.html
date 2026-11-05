@@ -27,6 +27,9 @@
   }
   *{box-sizing:border-box}
   html,body{margin:0;padding:0}
+  /* Safari en iPhone agranda el texto de bloques más anchos que la pantalla (la hoja mide 816px);
+     eso hacía que el PDF del teléfono saliera más apretado que el de la computadora. */
+  html,body,#doc,#doc *{-webkit-text-size-adjust:100%;text-size-adjust:100%}
   body{
     background:var(--desk);
     color:var(--ink);
@@ -280,6 +283,16 @@
     </div>
 
     <div class="grp">
+      <h2>OTD objetivo</h2>
+      <p class="hint">Escribe el OTD que quieres (por unidad) y te saca el precio de venta, usando los cargos, impuesto e intercambio de arriba.</p>
+      <div class="g2">
+        <label class="f"><span>OTD deseado ($)</span><input type="number" step="any" inputmode="decimal" id="targetOtd" placeholder="36500.00"></label>
+        <div class="f" style="display:flex;align-items:flex-end"><button class="addbtn" id="solveOtd" style="border-style:solid;color:var(--ink)">Calcular precio de venta</button></div>
+      </div>
+      <p class="hint" id="solveMsg" style="margin:6px 0 0"></p>
+    </div>
+
+    <div class="grp">
       <h2>Mi información</h2>
       <p class="hint">Llena esto una vez y toca «Guardar predeterminados» arriba.</p>
       <div class="g1"><label class="f"><span>Salesperson</span><input data-bind="seller.name"></label></div>
@@ -490,6 +503,37 @@ function calc(){
           grand:due*qty,hasDisc:(v.discount||0)>0&&(v.market||0)>unit,hasTrade:allow>0||payoff>0};
 }
 
+/* ---------- OTD objetivo → precio de venta ---------- */
+function solveSaleForOtd(D){
+  const qty=Math.max(1,Math.round(state.veh.qty||1));
+  const allow=qty===1?Math.max(0,state.trade.allowance||0):0;
+  const payoff=qty===1?Math.max(0,state.trade.payoff||0):0;
+  const r=(state.taxRate||0)/100;
+  const feeT=state.fees.filter(f=>f.taxable).reduce((s,f)=>s+(f.amount||0),0);
+  const feeN=state.fees.filter(f=>!f.taxable).reduce((s,f)=>s+(f.amount||0),0);
+  const cr=state.trade.taxCredit?allow:0;
+  /* due = sale - allow + payoff + feeT + feeN + r*(sale - credit + feeT) */
+  let s=(D+allow-payoff-feeT-feeN-r*(feeT-cr))/(1+r);
+  /* si el precio queda debajo del allowance, el crédito se topa en el precio: no paga impuesto del vehículo */
+  if(state.trade.taxCredit&&s<allow)s=D+allow-payoff-feeT-feeN-r*feeT;
+  return s;
+}
+function applyTargetOtd(){
+  const D=num($('#targetOtd').value), msg=$('#solveMsg');
+  if(!(D>0)){msg.textContent='Escribe un OTD mayor a cero.';return;}
+  const prev=state.veh.sale;
+  let s=Math.round(solveSaleForOtd(D)*100)/100;
+  /* ajustar centavos para que el total redondeado cuadre exacto */
+  const due=x=>{state.veh.sale=x;return Math.round(calc().due*100)/100;};
+  for(let i=0;i<5&&due(s)!==D;i++)s=Math.round((s+(D-due(s))/(1+(state.taxRate||0)/100))*100)/100;
+  if(!(s>0)){state.veh.sale=prev;msg.textContent='Con esos cargos e intercambio no sale un precio positivo para ese OTD.';return;}
+  state.veh.sale=s;
+  syncPrice('veh.sale');
+  refreshScalars();onChange();
+  const got=Math.round(calc().due*100)/100;
+  msg.textContent='Precio de venta: $'+fmt2(s)+' → OTD $'+fmt2(got)+(got!==D?' (lo más cercano posible al centavo)':'');
+}
+
 /* ---------- documento ---------- */
 function dl(lbl,amt,cls){return '<div class="ln'+(cls?' '+cls:'')+'"><span>'+lbl+'</span><span class="dots"></span><span class="amt">'+amt+'</span></div>';}
 function renderDoc(){
@@ -647,6 +691,8 @@ $('#btnNew').addEventListener('click',async()=>{
   toast('Cotización nueva');
 });
 
+$('#solveOtd').addEventListener('click',applyTargetOtd);
+$('#targetOtd').addEventListener('keydown',e=>{if(e.key==='Enter')applyTargetOtd();});
 $('#addFee').addEventListener('click',()=>{state.fees.push({name:'',amount:0,taxable:false});renderFeeRows();onChange();});
 
 $('#hybridChk').addEventListener('change',e=>{state.veh.hybrid=e.target.checked;onChange();});
@@ -670,6 +716,10 @@ $('#btnPdf').addEventListener('click',()=>{
   clone.style.width='816px';
   clone.style.boxShadow='none';
   clone.style.margin='0';
+  /* La hoja en pantalla mide mín. 1010px, pero una carta con estos márgenes solo cabe ~985px:
+     ese sobrante creaba una 2a página en blanco. Se ajusta la altura mínima a lo que cabe. */
+  const PDF_M=[0.32,0.1,0.42,0.1];
+  clone.style.minHeight=(Math.floor((11-PDF_M[0]-PDF_M[2])*96)-4)+'px';
 
   /* El contenedor va pegado a 0,0 del documento: si se manda fuera de pantalla
      (left:-10000px) html2canvas captura corrido y recorta la hoja. */
@@ -685,7 +735,11 @@ $('#btnPdf').addEventListener('click',()=>{
   const fname='OTD_'+tag+'_'+(state.quote.date||todayISO())+'.pdf';
   toast('Generando PDF…');
 
-  const done=()=>{holder.remove();window.scrollTo(sx,sy);btn.disabled=false;};
+  /* En el teléfono: mientras se genera el PDF, la página se maqueta con ancho de computadora,
+     así la hoja se captura igual que en la compu. Se regresa al terminar. */
+  const vp=document.querySelector('meta[name="viewport"]'),vpOld=vp?vp.content:null;
+  if(vp&&window.innerWidth<900)vp.content='width=900';
+  const done=()=>{holder.remove();if(vp&&vpOld!==null)vp.content=vpOld;window.scrollTo(sx,sy);btn.disabled=false;};
 
   /* Esperar a que la imagen del logo esté lista antes de capturar */
   const img=clone.querySelector('img');
@@ -693,8 +747,9 @@ $('#btnPdf').addEventListener('click',()=>{
     ? new Promise(r=>{img.onload=r;img.onerror=r;})
     : Promise.resolve();
 
-  ready.then(()=>html2pdf().set({
-    margin:[0.32,0.1,0.42,0.1],
+  ready.then(()=>new Promise(r=>setTimeout(r,300)))   /* darle tiempo al cambio de ancho */
+  .then(()=>html2pdf().set({
+    margin:PDF_M,
     filename:fname,
     image:{type:'jpeg',quality:0.96},
     html2canvas:{

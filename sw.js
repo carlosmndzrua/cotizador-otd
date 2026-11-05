@@ -1,6 +1,6 @@
 /* Cotizador OTD — service worker
    Sube la versión (CACHE) cada vez que cambies index.html para forzar la actualización. */
-const CACHE = 'cotizador-otd-v8';
+const CACHE = 'cotizador-otd-v9';
 
 const ASSETS = [
   './',
@@ -35,7 +35,8 @@ self.addEventListener('fetch', e => {
   // La app: primero red (para traer cambios), con respaldo del caché sin internet.
   if (req.mode === 'navigate') {
     e.respondWith(
-      fetch(req)
+      // no-cache: siempre confirma con GitHub si hay versión nueva (Pages deja el HTML 10 min en caché)
+      fetch(req, { cache: 'no-cache' })
         .then(r => {
           const copy = r.clone();
           caches.open(CACHE).then(c => c.put('./index.html', copy));

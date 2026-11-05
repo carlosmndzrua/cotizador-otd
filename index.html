@@ -262,6 +262,14 @@
         <label class="f"><span>Descuento ($)</span><input type="number" step="any" inputmode="decimal" data-bind="veh.discount" data-num="1" data-zero="blank" placeholder="0.00"></label>
       </div>
       <p class="hint" style="margin:-2px 0 10px">Pon el MSRP y luego el precio de venta: el descuento se calcula solo. También puedes escribir el descuento y te saca el precio de venta.</p>
+      <div style="border:1px solid var(--hair);border-radius:8px;padding:10px 12px;margin:0 0 10px">
+        <div class="g2" style="margin:0">
+          <label class="f"><span>OTD deseado ($)</span><input type="number" step="any" inputmode="decimal" id="targetOtd" placeholder="36500.00"></label>
+          <div class="f" style="display:flex;align-items:flex-end"><button class="addbtn" id="solveOtd" style="border-style:solid;color:var(--ink)">Calcular precio de venta</button></div>
+        </div>
+        <p class="hint" style="margin:4px 0 0;font-size:12px;color:var(--muted)">Escribe el OTD que quieres (por unidad) y te saca el precio de venta con los cargos, impuesto e intercambio de abajo.</p>
+        <p class="hint" id="solveMsg" style="margin:4px 0 0;font-size:12.5px;font-weight:600;color:var(--ink)"></p>
+      </div>
       <p class="hint" style="margin:0">Con cantidad mayor a 1, los cargos e impuesto se calculan por unidad y el documento agrega el total de todas las unidades.</p>
     </div>
 
@@ -280,16 +288,6 @@
       </div>
       <label class="chk" style="margin-bottom:6px"><input type="checkbox" id="taxCreditChk"> Aplicar crédito de impuesto por el intercambio</label>
       <p class="hint" style="margin:0">Nevada da el crédito sobre el allowance completo, sin importar el payoff. Desmárcalo si el cliente registra en un estado que no lo da (California, por ejemplo). Solo aplica con cantidad 1.</p>
-    </div>
-
-    <div class="grp">
-      <h2>OTD objetivo</h2>
-      <p class="hint">Escribe el OTD que quieres (por unidad) y te saca el precio de venta, usando los cargos, impuesto e intercambio de arriba.</p>
-      <div class="g2">
-        <label class="f"><span>OTD deseado ($)</span><input type="number" step="any" inputmode="decimal" id="targetOtd" placeholder="36500.00"></label>
-        <div class="f" style="display:flex;align-items:flex-end"><button class="addbtn" id="solveOtd" style="border-style:solid;color:var(--ink)">Calcular precio de venta</button></div>
-      </div>
-      <p class="hint" id="solveMsg" style="margin:6px 0 0"></p>
     </div>
 
     <div class="grp">
